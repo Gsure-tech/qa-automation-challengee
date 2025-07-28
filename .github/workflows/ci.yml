@@ -27,11 +27,22 @@ jobs:
         working-directory: ./qa-backend-task
         run: |
           nohup npm run dev > backend.log 2>&1 &
+          sleep 20
 
-      - name: Run Cypress tests with frontend auto-start
+      - name: Install frontend dependencies
+        working-directory: ./qa-frontend-task
+        run: npm install
+
+      - name: Start frontend server
+        working-directory: ./qa-frontend-task
+        run: |
+          nohup npm start > frontend.log 2>&1 &
+          sleep 20
+
+      - name: Run Cypress tests
         uses: cypress-io/github-action@v5
         with:
           working-directory: ./qa-frontend-task
-          start: npm run dev
-          wait-on: http://localhost:3000
+          start: npm start
+          wait-on: 'http://localhost:3000'
           wait-on-timeout: 60

@@ -2,9 +2,9 @@ name: QA CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   cypress-tests:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -23,23 +23,49 @@ jobs:
         working-directory: ./qa-backend-task
         run: npm install
 
+      - name: Start backend
+        working-directory: ./qa-backend-task
+        run: |
+          nohup npm run dev > backend.log 2>&1 &
+          sleep 15
+
       - name: Install frontend dependencies
         working-directory: ./qa-frontend-task
         run: npm install
+
+      - name: Build frontend
+        working-directory: ./qa-frontend-task
+        run: npm run build
+
+      - name: Start frontend
+        working-directory: ./qa-frontend-task
+        run: |
+          nohup npm run start > frontend.log 2>&1 &
+          sleep 10
+
+      - name: Install Cypress dependencies
+        working-directory: ./qa-frontend-task
+        run: npm install cypress --save-dev
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./qa-frontend-task
-          start: npm run dev
-          wait-on: http://localhost:3000
-          wait-on-timeout: 60
-        env:
-          CYPRESS_baseUrl: http://localhost:3000
+          build: npm run build
+          start: npm start
+          wait-on: 'http://localhost:3000' # adjust to your frontend dev port
+          wait-on-timeout: 60 # seconds
 
-      - name: Upload Cypress screenshots (on failure)
+      - name: Upload Cypress screenshots on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: qa-frontend-task/cypress/screenshots
+
+      - name: Upload Cypress videos on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: qa-frontend-task/cypress/videos

@@ -1,46 +1,57 @@
-name: QA Challenge CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  run-tests:
+  test:
     runs-on: ubuntu-latest
 
     services:
       mongo:
-        image: mongo:5.0
+        image: mongo
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.stats()'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Install backend dependencies
-      working-directory: ./qa-backend-task
-      run: npm install
+      - name: Install backend dependencies
+        working-directory: qa-backend-task
+        run: npm install
 
-    - name: Start backend server
-      working-directory: ./qa-backend-task
-      run: |
-        nohup npm start &
-        sleep 5
+      - name: Start backend
+        working-directory: qa-backend-task
+        run: npm start &
+      
+      - name: Install frontend dependencies
+        working-directory: qa-frontend-task
+        run: npm install
 
-    - name: Install frontend dependencies
-      working-directory: ./qa-frontend-task
-      run: npm install
+      - name: Start frontend
+        working-directory: qa-frontend-task
+        run: npm start &
 
-    - name: Run Cypress tests
-      working-directory: ./qa-frontend-task
-      run: |
-        npx cypress install
-        npx cypress run --browser chrome
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:5001
+
+      - name: Run Cypress tests
+        working-directory: qa-frontend-task
+        run: npx cypress run

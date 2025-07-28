@@ -1,0 +1,46 @@
+name: QA Challenge CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install backend dependencies
+      working-directory: ./qa-backend-task
+      run: npm install
+
+    - name: Start backend server
+      working-directory: ./qa-backend-task
+      run: |
+        nohup npm start &
+        sleep 5
+
+    - name: Install frontend dependencies
+      working-directory: ./qa-frontend-task
+      run: npm install
+
+    - name: Run Cypress tests
+      working-directory: ./qa-frontend-task
+      run: |
+        npx cypress install
+        npx cypress run --browser chrome

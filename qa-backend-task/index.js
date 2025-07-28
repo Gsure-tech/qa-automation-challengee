@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-const PORT = 5001;
+const PORT = 5000;
 const SECRET = "my_jwt_secret";
 
 app.use(cors());

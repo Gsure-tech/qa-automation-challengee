@@ -52,7 +52,7 @@ jobs:
           working-directory: ./
           config-file: cypress.config.js
           start: npm start --prefix qa-frontend-task
-          wait-on: 'http://localhost:3000,http://localhost:5001'
+          wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
 
       - name: Upload Cypress screenshots on failure

@@ -18,7 +18,7 @@ const Dashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/items", {
+      const res = await axios.get("http://localhost:5000/items", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(res.data);
@@ -45,7 +45,7 @@ const Dashboard = () => {
     try {
       if (editingId) {
         await axios.put(
-          `http://localhost:5001/items/${editingId}`,
+          `http://localhost:5000/items/${editingId}`,
           {
             title: trimmedTitle,
             description: trimmedDesc,
@@ -57,7 +57,7 @@ const Dashboard = () => {
         );
       } else {
         await axios.post(
-          "http://localhost:5001/items",
+          "http://localhost:5000/items",
           {
             title: trimmedTitle,
             description: trimmedDesc,
@@ -89,7 +89,7 @@ const Dashboard = () => {
   const handleDeleteConfirmed = async () => {
     if (taskToDelete) {
       try {
-        await axios.delete(`http://localhost:5001/items/${taskToDelete.id}`, {
+        await axios.delete(`http://localhost:5000/items/${taskToDelete.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTaskToDelete(null);

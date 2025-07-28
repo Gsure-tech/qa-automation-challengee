@@ -13,6 +13,9 @@ app.use(bodyParser.json());
 let items = [];
 let id = 1;
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -29,7 +32,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   if (username === "admin" && password === "P@zzword") {
@@ -38,7 +40,6 @@ app.post("/login", (req, res) => {
   }
   return res.status(401).json({ message: "Invalid credentials" });
 });
-
 
 app.get("/items", authenticateToken, (req, res) => {
   res.json(items);

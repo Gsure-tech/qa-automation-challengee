@@ -26,8 +26,8 @@ jobs:
       - name: Start backend
         working-directory: ./qa-backend-task
         run: |
-          nohup node index.js > backend.log 2>&1 &
-          sleep 10
+          nohup npm run dev > backend.log 2>&1 &
+          sleep 15
 
       - name: Install frontend dependencies
         working-directory: ./qa-frontend-task
@@ -52,7 +52,7 @@ jobs:
           working-directory: ./
           config-file: cypress.config.js
           start: npm start --prefix qa-frontend-task
-          wait-on: 'http://localhost:3000,http://localhost:5001'
+          wait-on: 'http://localhost:3000,http://localhost:5001/health'
           wait-on-timeout: 90
 
       - name: Upload Cypress screenshots on failure

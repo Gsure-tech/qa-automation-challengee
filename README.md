@@ -13,8 +13,9 @@ This project demonstrates a full-stack application with automated QA coverage, i
 
 ```
 .
-├── backend/                # Node.js Express API
-├── qa-frontend/            # React frontend with Tailwind CSS and Cypress
+├── backend/                 # Node.js Express API
+├── qa-frontend/            # React frontend with Tailwind CSS and cypress
+├── cypress/                # Cypress UI tests
 ├── postman/                # Postman collection
 └── .github/workflows/      # GitHub Actions CI pipeline
 ```

@@ -1,14 +1,20 @@
-name: QA CI
+name: QA Challenge CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
 
 jobs:
-  cypress-tests:
+  test:
     runs-on: ubuntu-latest
+    services:
+      backend:
+        image: node:18
+        options: --health-cmd "curl --fail http://localhost:5000 || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout code
@@ -17,32 +23,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install backend dependencies
-        working-directory: ./qa-backend-task
-        run: npm install
-
-      - name: Start backend server
-        working-directory: ./qa-backend-task
-        run: |
-          nohup npm run dev > backend.log 2>&1 &
-          sleep 20
+      - name: Clean frontend cache manually
+        working-directory: ./qa-frontend-task
+        run: rm -rf node_modules/.cache
 
       - name: Install frontend dependencies
         working-directory: ./qa-frontend-task
-        run: npm install
+        run: npm ci
 
-      - name: Start frontend server
+      - name: Start frontend
         working-directory: ./qa-frontend-task
-        run: |
-          nohup npm start > frontend.log 2>&1 &
-          sleep 20
+        run: npm start &
+        env:
+          CI: true
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Install backend dependencies
+        working-directory: ./qa-backend-task
+        run: npm ci
+
+      - name: Start backend
+        working-directory: ./qa-backend-task
+        run: npm start &
+        env:
+          CI: true
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:5000
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v5
         with:
-          working-directory: ./qa-frontend-task
           start: npm start
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 60
+          wait-on: http://localhost:3000
+          working-directory: ./qa-frontend-task

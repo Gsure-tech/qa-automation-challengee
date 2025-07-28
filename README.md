@@ -13,7 +13,7 @@ This project demonstrates a full-stack application with automated QA coverage, i
 
 ```
 .
-├── backend/                 # Node.js Express API
+├── backend/                # Node.js Express API
 ├── qa-frontend/            # React frontend with Tailwind CSS and cypress
 ├── cypress/                # Cypress UI tests
 ├── postman/                # Postman collection
@@ -27,8 +27,8 @@ This project demonstrates a full-stack application with automated QA coverage, i
 - Node.js (v18+)
 - npm
 - Git
-- Cypress CLI (optional for local testing)
-- Postman or Newman CLI
+- Cypress CLI
+- Postman
 
 ---
 
@@ -57,6 +57,10 @@ npx cypress open  # or use `npx cypress run` for headless mode
 ```
 
 ### Postman API Tests
+- import the postman collection
+- open postman
+- click import - upload files
+- choose the file: qa-project/postaman/postman/Task Management API Collection.postman_collection.json
 Use the provided Postman collection:
 
 

@@ -1,17 +1,14 @@
-name: CI Pipeline
+name: QA CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  test:
+   cypress-tests:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,33 +16,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Install wait-on
-        run: npm install -g wait-on
-
-      - name: Install backend dependencies
+      - name: Install server dependencies
         working-directory: ./qa-backend-task
-        run: npm install
-
-      - name: Install frontend dependencies
-        working-directory: ./qa-frontend-task
-        run: npm install
+        run: |
+          npm install
 
       - name: Start backend
         working-directory: ./qa-backend-task
-        run: npm start &
-      
+        run: |
+          nohup npm run dev > backend.log 2>&1 &
+          sleep 20
+
+      - name: Install frontend dependencies
+        working-directory: ./qa-frontend-task
+        run: |
+          npm install
+
       - name: Start frontend
         working-directory: ./qa-frontend-task
-        run: npm start &
+        run: |
+          nohup npm run dev > frontend.log 2>&1 &
+          sleep 10
 
-      - name: Wait for frontend to be ready
-        run: wait-on http://localhost:3000
+      - name: Install Cypress
+        working-directory: ./qa-frontend-task
+        run: |
+          npm install
 
-      - name: Wait for backend to be ready
-        run: wait-on http://localhost:5001
+      - name: Install Cypress binary
+        working-directory: ./qa-frontend-task
+        run: |
+          npx cypress install
 
       - name: Run Cypress tests
         working-directory: ./qa-frontend-task
-        run: npx cypress run
+        run: |
+          npx cypress run

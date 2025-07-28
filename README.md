@@ -78,8 +78,5 @@ This is a demo QA project built for showcasing:
 - Test coverage
 - CI/CD integration
 
-## Cypress Test Screenshots
-- Login Test Page:
-
 
 Contact: abubakarabdul9023@gmail.com

@@ -40,32 +40,31 @@ jobs:
       - name: Start frontend
         working-directory: ./qa-frontend-task
         run: |
-          nohup npm run start > frontend.log 2>&1 &
+          nohup npm start > frontend.log 2>&1 &
           sleep 10
 
-      - name: Install Cypress dependencies
-        working-directory: ./qa-frontend-task
+      - name: Install Cypress (at root)
         run: npm install cypress --save-dev
 
-      - name: Run Cypress tests
+      - name: Run Cypress tests from root folder
         uses: cypress-io/github-action@v6
         with:
-          working-directory: ./qa-frontend-task
-          build: npm run build
-          start: npm start
-          wait-on: 'http://localhost:3000' # adjust to your frontend dev port
-          wait-on-timeout: 60 # seconds
+          working-directory: ./
+          config-file: cypress.config.js
+          start: npm start --prefix qa-frontend-task
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 60
 
       - name: Upload Cypress screenshots on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
-          path: qa-frontend-task/cypress/screenshots
+          path: cypress/screenshots
 
       - name: Upload Cypress videos on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
-          path: qa-frontend-task/cypress/videos
+          path: cypress/videos

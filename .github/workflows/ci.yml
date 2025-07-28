@@ -7,8 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-   cypress-tests:
+  cypress-tests:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,39 +19,19 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install server dependencies
+      - name: Install backend dependencies
         working-directory: ./qa-backend-task
-        run: |
-          npm install
+        run: npm install
 
-      - name: Start backend
+      - name: Start backend server
         working-directory: ./qa-backend-task
         run: |
           nohup npm run dev > backend.log 2>&1 &
-          sleep 20
 
-      - name: Install frontend dependencies
-        working-directory: ./qa-frontend-task
-        run: |
-          npm install
-
-      - name: Start frontend
-        working-directory: ./qa-frontend-task
-        run: |
-          nohup npm run dev > frontend.log 2>&1 &
-          sleep 10
-
-      - name: Install Cypress
-        working-directory: ./qa-frontend-task
-        run: |
-          npm install
-
-      - name: Install Cypress binary
-        working-directory: ./qa-frontend-task
-        run: |
-          npx cypress install
-
-      - name: Run Cypress tests
-        working-directory: ./qa-frontend-task
-        run: |
-          npx cypress run
+      - name: Run Cypress tests with frontend auto-start
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: ./qa-frontend-task
+          start: npm run dev
+          wait-on: http://localhost:3000
+          wait-on-timeout: 60
